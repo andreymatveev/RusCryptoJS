@@ -626,13 +626,14 @@ function CryptoPro() {
 	};
 
 	/**
-	 * Подпись данных (отсоединенная).
+	 * Подпись данных.
 	 * @param {string} dataBase64
 	 * @param {string} certThumbprint
 	 * @param {string} pin будет запрошен, если отсутствует
+	 * @param {string} isAttached присоединённая (true) или отсоединённая (false, по умолчанию)
 	 * @returns {Promise<string>} base64
 	 */
-	this.signData = function(dataBase64, certThumbprint, pin){
+	this.signData = function(dataBase64, certThumbprint, pin, isAttached = false){
 		if(canAsync) {
 			let oCertificate, oSigner, oSignedData;
 			return getCertificateObject(certThumbprint, pin)
@@ -655,7 +656,7 @@ function CryptoPro() {
 				]);
 			})
 			.then(() => oSignedData.propset_Content(dataBase64))
-			.then(() => oSignedData.SignCades(oSigner, cadesplugin.CADESCOM_CADES_BES, true))
+			.then(() => oSignedData.SignCades(oSigner, cadesplugin.CADESCOM_CADES_BES, !isAttached))
 			.catch(e => {
 				console.log(arguments);
 				const err = getError(e);
@@ -676,7 +677,7 @@ function CryptoPro() {
 					oSignedData.ContentEncoding = cadesplugin.CADESCOM_BASE64_TO_BINARY;
 					oSignedData.Content = dataBase64;
 
-					const sSignedMessage = oSignedData.SignCades(oSigner, cadesplugin.CADESCOM_CADES_BES, true);
+					const sSignedMessage = oSignedData.SignCades(oSigner, cadesplugin.CADESCOM_CADES_BES, !isAttached);
 					resolve(sSignedMessage);
 				}
 				catch (e) {
